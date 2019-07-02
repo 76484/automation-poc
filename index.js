@@ -24,7 +24,7 @@ const createImposter = () => {
         .then(() => {
             return axios.post(`${MOUNTEBANK_URL}/imposters`, {
                 "port": IMPOSTER_PORT,
-                "protocol": "http",
+                "protocol": "http"
             });
         });
 };
@@ -45,6 +45,7 @@ const createLocationsStub = locations => {
                     "is": {
                         "statusCode": 200,
                         "headers": {
+                            "Access-Control-Allow-Origin": "*",
                             "Content-Type": "application/json"
                         },
                         "body": {
