@@ -1,3 +1,4 @@
+var assert = require('assert');
 const axios = require('axios');
 const {
     Builder,
@@ -64,39 +65,41 @@ const createLocationsStub = locations => {
     });
 };
 
-createImposter()
-    .then(() => {
-        return createLocationsStub([
-            LOCATIONS.TORONTO,
-            LOCATIONS.VANCOUVER,
-            LOCATIONS.CHICAGO
-        ])
-    })
-    .then(() =>  {
-        console.log("All Locations created.");
-        return new Promise(resolve => {
-            new Builder()
-                .forBrowser('chrome')
-                .build()
-                .then(driver => resolve(driver));
-        });
-    })
-    .then(driver => {
-        return driver
-            .get('http://localhost:3000')
+describe('Location', () => {
+    it('should be set with city and subdivision code from Location response', done => {
+        createImposter()
             .then(() => {
-                return driver.wait(
-                    until.elementLocated(By.id('Location'), 10 * 1000)
-                );
+                return createLocationsStub([
+                    LOCATIONS.TORONTO,
+                    LOCATIONS.VANCOUVER,
+                    LOCATIONS.CHICAGO
+                ])
             })
-            .then(el => el.getText())
-            .then(text => {
-                console.log(text);
+            .then(() =>  {
+                return new Promise(resolve => {
+                    new Builder()
+                        .forBrowser('chrome')
+                        .build()
+                        .then(driver => resolve(driver));
+                });
             })
-            .finally(() => {
-                driver.quit();
-            });
-    })
-    .catch(err => {
-        console.log(err);
+            .then(driver => {
+                return driver
+                    .get('http://localhost:3000')
+                    .then(() => {
+                        return driver.wait(
+                            until.elementLocated(By.id('Location'), 10 * 1000)
+                        );
+                    })
+                    .then(el => el.getText())
+                    .then(text => {
+                        assert.equal(text, 'Toronto, ON');
+                        done()
+                    })
+                    .finally(() => {
+                        driver.quit();
+                    });
+            })
+            .catch(err => done(err));
     });
+});
