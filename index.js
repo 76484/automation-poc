@@ -1,4 +1,9 @@
 const axios = require('axios');
+const {
+    Builder,
+    By,
+    until
+} = require('selenium-webdriver');
 
 const MOUNTEBANK_URL = "http://localhost:2525"
 const IMPOSTER_PORT = 4545;
@@ -69,6 +74,28 @@ createImposter()
     })
     .then(() =>  {
         console.log("All Locations created.");
+        return new Promise(resolve => {
+            new Builder()
+                .forBrowser('chrome')
+                .build()
+                .then(driver => resolve(driver));
+        });
+    })
+    .then(driver => {
+        return driver
+            .get('http://localhost:3000')
+            .then(() => {
+                return driver.wait(
+                    until.elementLocated(By.id('Location'), 10 * 1000)
+                );
+            })
+            .then(el => el.getText())
+            .then(text => {
+                console.log(text);
+            })
+            .finally(() => {
+                driver.quit();
+            });
     })
     .catch(err => {
         console.log(err);
