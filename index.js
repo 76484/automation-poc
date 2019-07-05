@@ -130,7 +130,7 @@ describe('Location', () => {
                             return driver.wait(() => el.getText(), 10 * 1000);
                         })
                         .then(text => {
-                            assert.equal(text, 'Yes');
+                            assert.equal(text, 'Yes', `Failed for location, "${location.city}, ${location.subdivision_code}".`);
                         })
                         .finally(() => {
                             driver.quit();
