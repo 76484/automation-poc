@@ -148,6 +148,12 @@ describe('Location', () => {
                         assert.equal(text, 'Yes', 'Failed for location, "Toronto, ON".');
                     });
             })
+            .then(() => {
+                return setupHasAllInPricingTest(LOCATIONS.CHICAGO)
+                    .then(text => {
+                        assert.equal(text, 'No', 'Failed for location, "Chicago, IL".');
+                    });
+            })
         ;
     });
 });
