@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "concurrently \"mb\" \"node ./app/app.js\""
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "axios": "0.19.0",
+    "concurrently": "4.1.1",
     "mocha": "6.1.4",
     "mountebank": "2.1.0"
   },
