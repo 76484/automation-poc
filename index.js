@@ -115,7 +115,7 @@ describe('Location', () => {
     });
 
     it('should have All-In Pricing when location\'s subdivision_code is "ON" or "QC"', () => {
-        const testHasAllInPricing = location => {
+        const setupHasAllInPricingTest = location => {
             return createLocationsStub([location])
                 .then(() => createDriver())
                 .then(driver => {
@@ -129,9 +129,6 @@ describe('Location', () => {
                         .then(el => {
                             return driver.wait(() => el.getText(), 10 * 1000);
                         })
-                        .then(text => {
-                            assert.equal(text, 'Yes', `Failed for location, "${location.city}, ${location.subdivision_code}".`);
-                        })
                         .finally(() => {
                             driver.quit();
                         })
@@ -139,8 +136,18 @@ describe('Location', () => {
         };
 
         return createImposterPromise
-            .then(() => testHasAllInPricing(LOCATIONS.MONTREAL))
-            .then(() => testHasAllInPricing(LOCATIONS.TORONTO))
+            .then(() => {
+                return setupHasAllInPricingTest(LOCATIONS.MONTREAL)
+                    .then(text => {
+                        assert.equal(text, 'Yes', 'Failed for location, "Montreal, QC".');
+                    });
+            })
+            .then(() => {
+                return setupHasAllInPricingTest(LOCATIONS.TORONTO)
+                    .then(text => {
+                        assert.equal(text, 'Yes', 'Failed for location, "Toronto, ON".');
+                    });
+            })
         ;
     });
 });
