@@ -14,6 +14,10 @@ const LOCATIONS = {
         "city": "Chicago",
         "subdivision_code": "IL"
     },
+    MONTREAL: {
+        "city": "Montreal",
+        "subdivision_code": "QC"
+    },
     TORONTO: {
         "city": "Toronto",
         "subdivision_code": "ON"
@@ -135,6 +139,7 @@ describe('Location', () => {
         };
 
         return createImposterPromise
+            .then(() => testHasAllInPricing(LOCATIONS.MONTREAL))
             .then(() => testHasAllInPricing(LOCATIONS.TORONTO))
         ;
     });
