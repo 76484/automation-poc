@@ -91,7 +91,9 @@ describe('Location', () => {
                                 until.elementLocated(By.id('Location'), 10 * 1000)
                             );
                         })
-                        .then(el => el.getText())
+                        .then(el => {
+                            return driver.wait(() => el.getText(), 10 * 1000);
+                        })
                         .then(text => {
                             assert.equal(text, `${location.city}, ${location.subdivision_code}`);
                         })
