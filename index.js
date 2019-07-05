@@ -109,4 +109,33 @@ describe('Location', () => {
             .then(() => testLocationText(LOCATIONS.CHICAGO))
         ;
     });
+
+    it('should have All-In Pricing when location\'s subdivision_code is "ON" or "QC"', () => {
+        const testHasAllInPricing = location => {
+            return createLocationsStub([location])
+                .then(() => createDriver())
+                .then(driver => {
+                    return driver
+                        .get('http://localhost:3000')
+                        .then(() => {
+                            return driver.wait(
+                                until.elementLocated(By.id('HasAllInPricing'), 10 * 1000)
+                            );
+                        })
+                        .then(el => {
+                            return driver.wait(() => el.getText(), 10 * 1000);
+                        })
+                        .then(text => {
+                            assert.equal(text, 'Yes');
+                        })
+                        .finally(() => {
+                            driver.quit();
+                        })
+                });
+        };
+
+        return createImposterPromise
+            .then(() => testHasAllInPricing(LOCATIONS.TORONTO))
+        ;
+    });
 });
