@@ -4,7 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "concurrently \"npm run start-partner-a\" \"npm run start-partner-b\"",
+    "start-partner-a": "cross-env PARTNER=\"A\" PORT=3000 node app.js",
+    "start-partner-b": "cross-env PARTNER=\"B\" PORT=3001 node app.js"
   },
   "author": "",
   "license": "ISC",
