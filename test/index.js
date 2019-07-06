@@ -6,6 +6,7 @@ const {
     By,
     until
 } = require('selenium-webdriver');
+const { forEachSeries } = require('p-iteration');
 
 const MOUNTEBANK_URL = "http://localhost:2525"
 const IMPOSTER_PORT = 4545;
@@ -86,7 +87,27 @@ const createDriver = () => {
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
+const getHasAllInPricingText = async location => {
+    const driver = await createDriver();
+
+    try {
+        await driver.get('http://localhost:3000');
+
+        const el = await driver.wait(
+            until.elementLocated(By.id('HasAllInPricing'), 10 * 1000)
+        );
+
+        return await driver.wait(() => el.getText(), 10 * 1000);
+    } finally {
+        driver.quit();
+    }
+};
+
 describe('Location', () => {
+    beforeEach(async () => {
+        return await createImposterPromise
+    });
+
     it('should be set with city and subdivision code from Location response', () => {
         const testLocationText = location => {
             return createLocationsStub([location])
@@ -118,27 +139,27 @@ describe('Location', () => {
         ;
     });
 
-    it('should have All-In Pricing when location\'s subdivision_code is "ON" or "QC"', async () => {
-        const getHasAllInPricingText = async location => {
-            await createLocationsStub([location]);
-            const driver = await createDriver();
+    it('should have All-In Pricing be "Yes" when location\'s subdivision_code is "ON" or "QC"', async () => {
+        const locationsWithAllInPricing = [
+            LOCATIONS.MONTREAL,
+            LOCATIONS.TORONTO
+        ]
 
-            try {
-                await driver.get('http://localhost:3000');
+        await createLocationsStub(locationsWithAllInPricing);
+        await forEachSeries(locationsWithAllInPricing, async location => {
+            await expect(getHasAllInPricingText(location)).to.eventually.equal('Yes');
+        });
+    });
 
-                const el = await driver.wait(
-                    until.elementLocated(By.id('HasAllInPricing'), 10 * 1000)
-                );
+    it('should have All-In Pricing be "No" when location\'s subdivision_code is not "ON" or "QC"', async () => {
+        const locationsWithoutAllInPricing = [
+            LOCATIONS.CHICAGO,
+            LOCATIONS.VANCOUVER
+        ]
 
-                return await driver.wait(() => el.getText(), 10 * 1000);
-            } finally {
-                driver.quit();
-            }
-        };
-
-        await createImposterPromise;
-        await expect(getHasAllInPricingText(LOCATIONS.MONTREAL)).to.eventually.equal('Yes');
-        await expect(getHasAllInPricingText(LOCATIONS.TORONTO)).to.eventually.equal('Yes');
-        await expect(getHasAllInPricingText(LOCATIONS.CHICAGO)).to.eventually.equal('No');
+        await createLocationsStub(locationsWithoutAllInPricing);
+        await forEachSeries(locationsWithoutAllInPricing, async location => {
+            await expect(getHasAllInPricingText(location)).to.eventually.equal('No');
+        });
     });
 });
