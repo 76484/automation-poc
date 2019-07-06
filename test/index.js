@@ -118,37 +118,27 @@ describe('Location', () => {
         ;
     });
 
-    it('should have All-In Pricing when location\'s subdivision_code is "ON" or "QC"', () => {
-        const getHasAllInPricingText = location => {
-            return createLocationsStub([location])
-                .then(() => createDriver())
-                .then(driver => {
-                    return driver
-                        .get('http://localhost:3000')
-                        .then(() => {
-                            return driver.wait(
-                                until.elementLocated(By.id('HasAllInPricing'), 10 * 1000)
-                            );
-                        })
-                        .then(el => {
-                            return driver.wait(() => el.getText(), 10 * 1000);
-                        })
-                        .finally(() => {
-                            driver.quit();
-                        })
-                });
+    it('should have All-In Pricing when location\'s subdivision_code is "ON" or "QC"', async () => {
+        const getHasAllInPricingText = async location => {
+            await createLocationsStub([location]);
+            const driver = await createDriver();
+
+            try {
+                await driver.get('http://localhost:3000');
+
+                const el = await driver.wait(
+                    until.elementLocated(By.id('HasAllInPricing'), 10 * 1000)
+                );
+
+                return await driver.wait(() => el.getText(), 10 * 1000);
+            } finally {
+                driver.quit();
+            }
         };
 
-        return createImposterPromise
-            .then(() => {
-                return expect(getHasAllInPricingText(LOCATIONS.MONTREAL)).to.eventually.equal('Yes');
-            })
-            .then(() => {
-                return expect(getHasAllInPricingText(LOCATIONS.TORONTO)).to.eventually.equal('Yes');
-            })
-            .then(() => {
-                return expect(getHasAllInPricingText(LOCATIONS.CHICAGO)).to.eventually.equal('No');
-            })
-        ;
+        await createImposterPromise;
+        await expect(getHasAllInPricingText(LOCATIONS.MONTREAL)).to.eventually.equal('Yes');
+        await expect(getHasAllInPricingText(LOCATIONS.TORONTO)).to.eventually.equal('Yes');
+        await expect(getHasAllInPricingText(LOCATIONS.CHICAGO)).to.eventually.equal('No');
     });
 });
