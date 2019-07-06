@@ -1,5 +1,6 @@
-var assert = require('assert');
 const axios = require('axios');
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
 const {
     Builder,
     By,
@@ -82,6 +83,9 @@ const createDriver = () => {
     });
 };
 
+chai.use(chaiAsPromised);
+const expect = chai.expect;
+
 describe('Location', () => {
     it('should be set with city and subdivision code from Location response', () => {
         const testLocationText = location => {
@@ -99,7 +103,7 @@ describe('Location', () => {
                             return driver.wait(() => el.getText(), 10 * 1000);
                         })
                         .then(text => {
-                            assert.equal(text, `${location.city}, ${location.subdivision_code}`);
+                            return expect(text).to.equal(`${location.city}, ${location.subdivision_code}`);
                         })
                         .finally(() => {
                             driver.quit();
@@ -115,7 +119,7 @@ describe('Location', () => {
     });
 
     it('should have All-In Pricing when location\'s subdivision_code is "ON" or "QC"', () => {
-        const setupHasAllInPricingTest = location => {
+        const getHasAllInPricingText = location => {
             return createLocationsStub([location])
                 .then(() => createDriver())
                 .then(driver => {
@@ -137,22 +141,13 @@ describe('Location', () => {
 
         return createImposterPromise
             .then(() => {
-                return setupHasAllInPricingTest(LOCATIONS.MONTREAL)
-                    .then(text => {
-                        assert.equal(text, 'Yes', 'Failed for location, "Montreal, QC".');
-                    });
+                return expect(getHasAllInPricingText(LOCATIONS.MONTREAL)).to.eventually.equal('Yes');
             })
             .then(() => {
-                return setupHasAllInPricingTest(LOCATIONS.TORONTO)
-                    .then(text => {
-                        assert.equal(text, 'Yes', 'Failed for location, "Toronto, ON".');
-                    });
+                return expect(getHasAllInPricingText(LOCATIONS.TORONTO)).to.eventually.equal('Yes');
             })
             .then(() => {
-                return setupHasAllInPricingTest(LOCATIONS.CHICAGO)
-                    .then(text => {
-                        assert.equal(text, 'No', 'Failed for location, "Chicago, IL".');
-                    });
+                return expect(getHasAllInPricingText(LOCATIONS.CHICAGO)).to.eventually.equal('No');
             })
         ;
     });
