@@ -1,10 +1,28 @@
 const express = require('express');
-const path = require('path');
+const expressHandlebars  = require('express-handlebars');
+
+const PARTNERS = {
+    A: {
+        partnerId: "A",
+        name: "Partner A",
+        hasDefaultAllInPricing: true
+    },
+    B: {
+        partnerId: "B",
+        name: "Partner B",
+        hasDefaultAllInPricing: false
+    }
+}
 
 const app = express();
-const partner = process.env.partner || "A"
+const partner = PARTNERS[process.env.partner] || PARTNERS.A
 const port = process.env.PORT || 3000;
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.engine('handlebars', expressHandlebars());
+app.set('view engine', 'handlebars');
 
-app.listen(port, () => console.log(`Example app for partner ${partner} listening on port ${port}!`));
+app.get('/', (_req, res) => {
+    res.render('home', { partner });
+});
+
+app.listen(port, () => console.log(`Example app for partner ${partner.name} listening on port ${port}!`));
