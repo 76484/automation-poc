@@ -28,7 +28,18 @@ const LOCATIONS = {
         "city": "Vancouver",
         "subdivision_code": "BC"
     }
-}
+};
+
+const PARTNERS = {
+    A: {
+        hasDefaultAllInPricing: true,
+        url: "http://localhost:3000"
+    },
+    B: {
+        hasDefaultAllInPricing: false,
+        url: "http://localhost:3001"
+    }
+};
 
 const createImposter = () => {
     return axios
@@ -87,11 +98,13 @@ const createDriver = () => {
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
-const getHasAllInPricingText = async location => {
+const PARTNER = PARTNERS.A; // TODO: This must be a run-time arg.
+
+const getHasAllInPricingText = async () => {
     const driver = await createDriver();
 
     try {
-        await driver.get('http://localhost:3000');
+        await driver.get(PARTNER.url);
 
         const el = await driver.wait(
             until.elementLocated(By.id('HasAllInPricing'), 10 * 1000)
@@ -103,18 +116,18 @@ const getHasAllInPricingText = async location => {
     }
 };
 
-describe('Location', () => {
-    beforeEach(async () => {
+describe('Location', function () {
+    beforeEach(async function () {
         return await createImposterPromise
     });
 
-    it('should be set with city and subdivision code from Location response', () => {
+    it('should be set with city and subdivision code from Location response', function () {
         const testLocationText = location => {
             return createLocationsStub([location])
                 .then(() => createDriver())
                 .then(driver => {
                     return driver
-                        .get('http://localhost:3000')
+                        .get(PARTNER.url)
                         .then(() => {
                             return driver.wait(
                                 until.elementLocated(By.id('Location'), 10 * 1000)
@@ -139,27 +152,49 @@ describe('Location', () => {
         ;
     });
 
-    it('should have All-In Pricing be "Yes" when location\'s subdivision_code is "ON" or "QC"', async () => {
-        const locationsWithAllInPricing = [
-            LOCATIONS.MONTREAL,
-            LOCATIONS.TORONTO
-        ]
+    context('when Partner has default to All-In Pricing', function () {
+        if (PARTNER.hasDefaultAllInPricing) {
+            it('should have All-In Pricing be "Yes" when location\'s subdivision_code is "ON" or "QC"', async function () {
+                const locationsWithAllInPricing = [
+                    LOCATIONS.MONTREAL,
+                    LOCATIONS.TORONTO
+                ]
 
-        await createLocationsStub(locationsWithAllInPricing);
-        await forEachSeries(locationsWithAllInPricing, async location => {
-            await expect(getHasAllInPricingText(location)).to.eventually.equal('Yes');
-        });
+                await createLocationsStub(locationsWithAllInPricing);
+                await forEachSeries(locationsWithAllInPricing, async location => {
+                    await expect(getHasAllInPricingText(location)).to.eventually.equal('Yes');
+                });
+            });
+
+            it('should have All-In Pricing be "No" when location\'s subdivision_code is not "ON" or "QC"', async function () {
+                const locationsWithoutAllInPricing = [
+                    LOCATIONS.CHICAGO,
+                    LOCATIONS.VANCOUVER
+                ]
+
+                await createLocationsStub(locationsWithoutAllInPricing);
+                await forEachSeries(locationsWithoutAllInPricing, async location => {
+                    await expect(getHasAllInPricingText(location)).to.eventually.equal('No');
+                });
+            });
+        }
     });
 
-    it('should have All-In Pricing be "No" when location\'s subdivision_code is not "ON" or "QC"', async () => {
-        const locationsWithoutAllInPricing = [
-            LOCATIONS.CHICAGO,
-            LOCATIONS.VANCOUVER
-        ]
+    context('when Partner does not have default to All-In Pricing', function () {
+        if (!PARTNER.hasDefaultAllInPricing) {
+            it('should have All-In Pricing be "No" regardless of location\'s subdivision_code', async function () {
+                const locations = [
+                    LOCATIONS.CHICAGO,
+                    LOCATIONS.MONTREAL,
+                    LOCATIONS.TORONTO,
+                    LOCATIONS.VANCOUVER
+                ]
 
-        await createLocationsStub(locationsWithoutAllInPricing);
-        await forEachSeries(locationsWithoutAllInPricing, async location => {
-            await expect(getHasAllInPricingText(location)).to.eventually.equal('No');
-        });
+                await createLocationsStub(locations);
+                await forEachSeries(locations, async location => {
+                    await expect(getHasAllInPricingText(location)).to.eventually.equal('No');
+                });
+            });
+        }
     });
 });
