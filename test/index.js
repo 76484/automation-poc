@@ -41,6 +41,11 @@ const PARTNERS = {
     }
 };
 
+const LOCATORS = {
+    HAS_ALL_IN_PRICING: By.id('HasAllInPricing'),
+    LOCATION: By.id('Location')
+};
+
 const createImposter = () => {
     return axios
         .delete(`${MOUNTEBANK_URL}/imposters`)
@@ -100,14 +105,14 @@ const expect = chai.expect;
 
 const PARTNER = PARTNERS.A; // TODO: This must be a run-time arg.
 
-const getHasAllInPricingText = async () => {
+const getElementText = async locator => {
     const driver = await createDriver();
 
     try {
         await driver.get(PARTNER.url);
 
         const el = await driver.wait(
-            until.elementLocated(By.id('HasAllInPricing'), 10 * 1000)
+            until.elementLocated(locator, 10 * 1000)
         );
 
         return await driver.wait(() => el.getText(), 10 * 1000);
@@ -121,35 +126,19 @@ describe('Location', function () {
         return await createImposterPromise
     });
 
-    it('should be set with city and subdivision code from Location response', function () {
-        const testLocationText = location => {
-            return createLocationsStub([location])
-                .then(() => createDriver())
-                .then(driver => {
-                    return driver
-                        .get(PARTNER.url)
-                        .then(() => {
-                            return driver.wait(
-                                until.elementLocated(By.id('Location'), 10 * 1000)
-                            );
-                        })
-                        .then(el => {
-                            return driver.wait(() => el.getText(), 10 * 1000);
-                        })
-                        .then(text => {
-                            return expect(text).to.equal(`${location.city}, ${location.subdivision_code}`);
-                        })
-                        .finally(() => {
-                            driver.quit();
-                        });
-                });
-        };
+    it('should be set with city and subdivision code from Location response', async function () {
+        const locations = [
+            LOCATIONS.CHICAGO,
+            LOCATIONS.TORONTO,
+            LOCATIONS.VANCOUVER
+        ]
 
-        return createImposterPromise
-            .then(() => testLocationText(LOCATIONS.TORONTO))
-            .then(() => testLocationText(LOCATIONS.VANCOUVER))
-            .then(() => testLocationText(LOCATIONS.CHICAGO))
-        ;
+        await forEachSeries(locations, async location => {
+            await createLocationsStub([location]);
+            await expect(getElementText(LOCATORS.LOCATION)).to.eventually.equal(`${location.city}, ${location.subdivision_code}`);
+        });
+    });
+
     });
 
     context('when Partner has default to All-In Pricing', function () {
@@ -161,8 +150,8 @@ describe('Location', function () {
                 ]
 
                 await createLocationsStub(locationsWithAllInPricing);
-                await forEachSeries(locationsWithAllInPricing, async location => {
-                    await expect(getHasAllInPricingText(location)).to.eventually.equal('Yes');
+                await forEachSeries(locationsWithAllInPricing, async () => {
+                    await expect(getElementText(LOCATORS.HAS_ALL_IN_PRICING)).to.eventually.equal('Yes');
                 });
             });
 
@@ -173,8 +162,8 @@ describe('Location', function () {
                 ]
 
                 await createLocationsStub(locationsWithoutAllInPricing);
-                await forEachSeries(locationsWithoutAllInPricing, async location => {
-                    await expect(getHasAllInPricingText(location)).to.eventually.equal('No');
+                await forEachSeries(locationsWithoutAllInPricing, async () => {
+                    await expect(getElementText(LOCATORS.HAS_ALL_IN_PRICING)).to.eventually.equal('No');
                 });
             });
         }
@@ -190,9 +179,9 @@ describe('Location', function () {
                     LOCATIONS.VANCOUVER
                 ]
 
-                await createLocationsStub(locations);
                 await forEachSeries(locations, async location => {
-                    await expect(getHasAllInPricingText(location)).to.eventually.equal('No');
+                    await createLocationsStub([location]);
+                    await expect(getElementText(LOCATORS.HAS_ALL_IN_PRICING)).to.eventually.equal('No');
                 });
             });
         }
