@@ -57,7 +57,13 @@ const createImposter = () => {
         });
 };
 
-const createLocationsStub = locations => {
+const createLocationsStub = (locations, wait) => {
+    const behaviors = {};
+
+    if (wait) {
+        behaviors.wait = wait;
+    }
+
     return axios.put(`${MOUNTEBANK_URL}/imposters/${IMPOSTER_PORT}/stubs`, {
         "stubs": [
             {
@@ -81,7 +87,8 @@ const createLocationsStub = locations => {
                                 location,
                                 "success": true
                             }
-                        }
+                        },
+                        "_behaviors": behaviors
                     }
                 })
             }
@@ -139,6 +146,9 @@ describe('Location', function () {
         });
     });
 
+    it('should render "Timedout" if Location request exceeds 3 second timeout', async function () {
+        await createLocationsStub([LOCATIONS.TORONTO], 5 * 1000);
+        await expect(getElementText(LOCATORS.LOCATION)).to.eventually.equal('Timedout');
     });
 
     context('when Partner has default to All-In Pricing', function () {
