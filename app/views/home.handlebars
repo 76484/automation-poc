@@ -7,7 +7,9 @@
     const $hasAllInPricing = document.getElementById('HasAllInPricing');
 
     axios
-        .get('http://localhost:4545/v2/locations')
+        .get('http://localhost:4545/v2/locations', {
+            timeout: 3000
+        })
         .then(response => {
             const location = response.data.location;
             const hasAllInPricing = {{ partner.hasDefaultAllInPricing }} && ['on', 'qc'].indexOf(location.subdivision_code.toLowerCase()) > -1;
@@ -16,6 +18,9 @@
             $hasAllInPricing.innerHTML = hasAllInPricing ? 'Yes' : 'No';
         })
         .catch(err => {
+            if (err.code === 'ECONNABORTED') {
+                $location.innerHTML = $hasAllInPricing.innerHTML = 'Timedout';
+            }
             // TODO: Handle error.
             console.error(err);
         });
