@@ -8,6 +8,9 @@
 
     axios
         .get('http://localhost:4545/v2/locations', {
+            headers: {
+                'X-PARTNER-ID': '{{ partner.partnerId }}'
+            },
             timeout: 3000
         })
         .then(response => {
