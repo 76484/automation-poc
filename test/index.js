@@ -60,12 +60,35 @@ const createImposter = () => {
 const createLocationsStub = (locations, wait) => {
     const behaviors = {};
 
+    const corsStub = {
+        predicates: [
+            {
+                deepEquals: {
+                    method: "OPTIONS"
+                }
+            }
+        ],
+        responses: [
+            {
+                is: {
+                    statusCode: 200,
+                    headers: {
+                        "Access-Control-Allow-Headers": "X-PARTNER-ID",
+                        "Access-Control-Allow-Methods": "GET, POST",
+                        "Access-Control-Allow-Origin": PARTNER.url
+                    }
+                }
+            }
+        ]
+    }
+
     if (wait) {
         behaviors.wait = wait;
     }
 
     return axios.put(`${MOUNTEBANK_URL}/imposters/${IMPOSTER_PORT}/stubs`, {
         "stubs": [
+            corsStub,
             {
                 "predicates": [
                     {
