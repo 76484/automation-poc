@@ -22,12 +22,90 @@
 	 				"is": {
 						"statusCode": 200,
 						"headers": {
-							"Access-Control-Allow-Headers": "X-PARTNER-ID",
+							"Access-Control-Allow-Headers": "Authorization, Content-Type, X-PARTNER-ID",
 							"Access-Control-Allow-Methods": "GET, POST",
 							"Access-Control-Allow-Origin": "*"
 						}
 	 				}
 	 			}
+            ]
+        },
+        {
+            "predicates": [
+                {
+                    "equals": {
+                        "path": "/v2/sso/auth/a",
+                        "method": "POST",
+                        "headers": {
+                            "Authorization": "Bearer 123",
+                            "X-PARTNER-ID": "A"
+                        }
+                    }
+                }
+            ],
+            "responses": [
+                {
+                    "is": {
+                        "statusCode": 200,
+                        "headers": {
+                            "Access-Control-Allow-Origin": "*",
+                            "Content-Type": "application/json"
+                        },
+                        "body": {
+                            "account": {
+                                "id": 1,
+                                "email_address": "aaron.test@vividseats.com",
+                                "first_name": "Aaron"
+                            },
+                            "loyalty": {
+
+                            },
+                            "program": {
+
+                            },
+                            "token": "123"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "predicates": [
+                {
+                    "equals": {
+                        "path": "/v2/sso/auth/b",
+                        "method": "POST",
+                        "headers": {
+                            "Authorization": "Bearer 456",
+                            "X-PARTNER-ID": "B"
+                        }
+                    }
+                }
+            ],
+            "responses": [
+                {
+                    "is": {
+                        "statusCode": 200,
+                        "headers": {
+                            "Access-Control-Allow-Origin": "*",
+                            "Content-Type": "application/json"
+                        },
+                        "body": {
+                            "account": {
+                                "id": 1,
+                                "email_address": "bob.test@vividseats.com",
+                                "first_name": "Bob"
+                            },
+                            "loyalty": {
+
+                            },
+                            "program": {
+
+                            },
+                            "token": "456"
+                        }
+                    }
+                }
             ]
         },
         {
