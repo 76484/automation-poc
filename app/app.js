@@ -25,4 +25,9 @@ app.get('/', (_req, res) => {
     res.render('home', { partner });
 });
 
+app.get('/unauthorized', (_req, res) => {
+    res.set('Content-Type', 'text/html');
+    res.end('You are not authorized to view this page.');
+});
+
 app.listen(port, () => console.log(`Example app for partner ${partner.name} listening on port ${port}!`));
