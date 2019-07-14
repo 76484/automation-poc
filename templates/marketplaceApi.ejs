@@ -1,0 +1,62 @@
+{
+    "port": 4545,
+    "protocol": "http",
+    "name": "Marketplace API mock",
+    "recordRequests": false,
+    "defaultResponse": {
+        "statusCode": 404,
+        "body": "Bad Request",
+        "headers": {}
+    },
+    "stubs": [
+        {
+            "predicates": [
+                {
+                    "deepEquals": {
+		 				"method": "OPTIONS"
+                    }
+                }
+            ],
+	 		"responses": [
+	 			{
+	 				"is": {
+						"statusCode": 200,
+						"headers": {
+							"Access-Control-Allow-Headers": "X-PARTNER-ID",
+							"Access-Control-Allow-Methods": "GET, POST",
+							"Access-Control-Allow-Origin": "*"
+						}
+	 				}
+	 			}
+            ]
+        },
+        {
+			"predicates": [
+				{
+					"deepEquals": {
+						"path": "/v2/locations",
+						"method": "GET"
+					}
+				}
+			],
+			"responses": [
+				{
+					"is": {
+						"statusCode": 200,
+						"headers": {
+							"Access-Control-Allow-Origin": "*",
+							"Content-Type": "application/json"
+						},
+						"body": {
+							"location": {
+								"city": "Toronto",
+								"subdivision_code": "ON"
+							},
+							"success": true
+						}
+					}
+				}
+			]
+		}
+    ]
+}
