@@ -1,4 +1,3 @@
-const axios = require('axios');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const {
@@ -20,27 +19,15 @@ const {
     PARTNERS
 } = require('./data');
 
-const MOUNTEBANK_URL = "http://localhost:2525"
-const IMPOSTER_PORT = 4545;
+const {
+    createImposter,
+    setStubs
+} = require('./mockApiGateway');
 
 const LOCATORS = {
     HAS_ALL_IN_PRICING: By.id('HasAllInPricing'),
     LOCATION: By.id('Location')
 };
-
-const createImposter = async () => {
-    await axios.delete(`${MOUNTEBANK_URL}/imposters/${IMPOSTER_PORT}`);
-    return axios.post(`${MOUNTEBANK_URL}/imposters`, {
-        port: IMPOSTER_PORT,
-        protocol: "http"
-    });
-};
-
-const setStubs = stubs => {
-    return axios.put(`${MOUNTEBANK_URL}/imposters/${IMPOSTER_PORT}/stubs`, { stubs });
-};
-
-const createImposterPromise = createImposter();
 
 const createDriver = () => {
     return new Promise(resolve => {
@@ -71,6 +58,8 @@ const getElementText = async (authToken, locator) => {
         driver.quit();
     }
 };
+
+const createImposterPromise = createImposter();
 
 describe('Location', function () {
     const account = ACCOUNTS[PARTNER.partnerId];
