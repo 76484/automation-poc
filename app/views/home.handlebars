@@ -3,15 +3,32 @@
 <p>Has All-In Pricing: <span id="HasAllInPricing"></span></p>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
 <script>
+    const API_URL = 'http://localhost:4545';
+    const PARTNER_ID = '{{ partner.partnerId }}';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const ssoAuthToken = urlParams.get('token');
+
     const $location = document.getElementById('Location');
     const $hasAllInPricing = document.getElementById('HasAllInPricing');
 
     axios
-        .get('http://localhost:4545/v2/locations', {
+        .post(`${API_URL}/v2/sso/auth/${PARTNER_ID.toLowerCase()}`, {}, {
             headers: {
-                'X-PARTNER-ID': '{{ partner.partnerId }}'
-            },
-            timeout: 3000
+                Authorization: `Bearer ${ssoAuthToken}`,
+                'X-PARTNER-ID': PARTNER_ID
+            }
+        })
+        .catch(err => {
+            window.location.href = '/unauthorized';
+        })
+        .then(() => {
+            return axios.get(`${API_URL}/v2/locations`, {
+                headers: {
+                    'X-PARTNER-ID': PARTNER_ID
+                },
+                timeout: 3000
+            })
         })
         .then(response => {
             const location = response.data.location;
