@@ -48,7 +48,7 @@ const LOCATORS = {
 
 const createImposter = () => {
     return axios
-        .delete(`${MOUNTEBANK_URL}/imposters`)
+        .delete(`${MOUNTEBANK_URL}/imposters/${IMPOSTER_PORT}`)
         .then(() => {
             return axios.post(`${MOUNTEBANK_URL}/imposters`, {
                 "port": IMPOSTER_PORT,
