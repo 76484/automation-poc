@@ -46,15 +46,12 @@ const LOCATORS = {
     LOCATION: By.id('Location')
 };
 
-const createImposter = () => {
-    return axios
-        .delete(`${MOUNTEBANK_URL}/imposters/${IMPOSTER_PORT}`)
-        .then(() => {
-            return axios.post(`${MOUNTEBANK_URL}/imposters`, {
-                "port": IMPOSTER_PORT,
-                "protocol": "http"
-            });
-        });
+const createImposter = async () => {
+    await axios.delete(`${MOUNTEBANK_URL}/imposters/${IMPOSTER_PORT}`);
+    return axios.post(`${MOUNTEBANK_URL}/imposters`, {
+        port: IMPOSTER_PORT,
+        protocol: "http"
+    });
 };
 
 const createLocationsStub = (locations, wait) => {
