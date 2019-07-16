@@ -47,7 +47,7 @@ describe('Location', function () {
             LOCATIONS.CHICAGO,
             LOCATIONS.TORONTO,
             LOCATIONS.VANCOUVER
-        ]
+        ];
 
         await forEachSeries(locations, async location => {
             await setStubs([
@@ -74,7 +74,7 @@ describe('Location', function () {
                 const locationsWithAllInPricing = [
                     LOCATIONS.MONTREAL,
                     LOCATIONS.TORONTO
-                ]
+                ];
 
                 await setStubs([
                     CORS_STUB,
@@ -90,7 +90,7 @@ describe('Location', function () {
                 const locationsWithoutAllInPricing = [
                     LOCATIONS.CHICAGO,
                     LOCATIONS.VANCOUVER
-                ]
+                ];
 
                 await setStubs([
                     CORS_STUB,
@@ -112,7 +112,7 @@ describe('Location', function () {
                     LOCATIONS.MONTREAL,
                     LOCATIONS.TORONTO,
                     LOCATIONS.VANCOUVER
-                ]
+                ];
 
                 await forEachSeries(locations, async location => {
                     await setStubs([
