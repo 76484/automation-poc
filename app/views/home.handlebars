@@ -1,3 +1,4 @@
+<div id="User"></div>
 <p>Partner: {{ partner.partnerId }}</p>
 <p>Location: <span id="Location"></span></p>
 <p>Has All-In Pricing: <span id="HasAllInPricing"></span></p>
@@ -11,6 +12,7 @@
 
     const $location = document.getElementById('Location');
     const $hasAllInPricing = document.getElementById('HasAllInPricing');
+    const $user = document.getElementById('User');
 
     axios
         .post(`${API_URL}/v2/sso/auth/${PARTNER_ID.toLowerCase()}`, {}, {
@@ -19,7 +21,12 @@
                 'X-PARTNER-ID': PARTNER_ID
             }
         })
+        .then(response => {
+            const account = response.data.account;
+            $user.innerHTML = `<p>Hello, ${account.first_name}</p>`;
+        })
         .catch(err => {
+            console.error(err);
             window.location.href = '/unauthorized';
         })
         .then(() => {
