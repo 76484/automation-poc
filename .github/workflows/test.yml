@@ -1,0 +1,7 @@
+name: Build Project
+on: [push]
+jobs:
+  Build-Project:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The secret is ${{ secrets.NPM_AUTH_TOKEN }}"
