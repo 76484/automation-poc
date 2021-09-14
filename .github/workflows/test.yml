@@ -4,4 +4,4 @@ jobs:
   Build-Project:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The secret is ${{ secrets.ci.NPM_AUTH_TOKEN }}"
+      - run: echo "🎉 The secret is ${{ secrets.NPM_AUTH_TOKEN }}"
